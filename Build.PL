@@ -10,14 +10,15 @@ my $builder = Module::Build->new(
     dist_author       => q{Pascual De Ruvo <pderuvo@gmail.com>},
     dist_version_from => 'lib/Authen/OATH/OCRA.pm',
     build_requires    => {
-        'Test::More'   => 0,
-        'Test::Simple' => 0,
-        'Moose'        => 0,
-        'Math::BigInt' => 0,
-        'Digest::SHA'  => 0,
-        'Carp'         => 0
+        'Test::More'      => 0,
+        'Test::Simple'    => 0,
+        'Test::Exception' => 0,
+        'Moose'           => 0,
+        'Math::BigInt'    => 0,
+        'Digest::SHA'     => 0,
+        'Carp'            => 0
     },
-    add_to_cleanup     => [ 'Authen-OATH-OCRA*' ],
+    add_to_cleanup     => ['Authen-OATH-OCRA*'],
     create_makefile_pl => 'traditional',
 );
 

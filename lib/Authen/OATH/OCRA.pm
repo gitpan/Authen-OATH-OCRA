@@ -48,11 +48,11 @@ OCRA - OATH Challenge-Response Algorithm
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =cut
 
-our $VERSION = "1.00";
+our $VERSION = "1.01";
 
 =head1 SYNOPSIS
 
@@ -83,7 +83,7 @@ Parameters may be set after object instantiation using accesor methods before th
 =head1 Description
 
 Implementation of the OATH Challenge-Response authentication algorithm 
-as defined by OATH (http://www.openauthentication.org)
+as defined by The Initiative for Open Authentication OATH (http://www.openauthentication.org)
 in RFC 6287 (http://tools.ietf.org/html/rfc6287)
 
 
@@ -91,13 +91,13 @@ in RFC 6287 (http://tools.ietf.org/html/rfc6287)
 =head1 PARAMETERS
 
 Minimum required parameters are: ocrasuite, key and question.
-Aditional parameters (counter, password, session_information or timestamp) may be required depending on the specified ocrasuite.
+Aditional parameters (counter, password or session_information) may be required depending on the specified ocrasuite.
 
 Accesor methods are provided for each parameter
 
 =head2 ocrasuite
 
-Text string that specifies the operation mode for OCRA.  
+Text string that specifies the operation mode for OCRA. For further information see http://tools.ietf.org/html/rfc6287#section-6 
 
 =head2 key
 
@@ -121,13 +121,13 @@ Text string that contains information about the current session, must be UTF-8 e
 
 =head2 timestamp
 
-An unsigned integer value representing the Unix Time on the specified granularity
+Defaults to system time if required by the OCRA Suite and not provided, use only if you need to set the time manually. An unsigned integer value representing the manual Unix Time in the granularity specified in the OCRA Suite
 
 =head1 SUBROUTINES/METHODS
 
 =head2 ocra
 
-Returns a text string with the One Time Password for the provided parameter
+Returns a text string with the One Time Password for the provided parameters
 
     my $otp = $ocra->ocra();
 
@@ -187,7 +187,7 @@ sub ocra {
     my $datainput = $self->ocrasuite . "\0";
 
     #Concatenate encoded Counter padded with 8 zeros at left
-    $datainput .= _hex_to_bin( _dec_to_hex( $self->counter ), 8 )
+    $datainput .= _hex_to_bytes( _dec_to_hex( $self->counter ), 8 )
         if $has_counter;
 
     #Encode the Question on the specified format
@@ -205,11 +205,11 @@ sub ocra {
     #to the left depending on the specified SHA
     my %password_size = ( 1 => 20, 256 => 32, 512 => 64 );
     $datainput
-        .= _hex_to_bin( $self->password, $password_size{$password_format} )
+        .= _hex_to_bytes( $self->password, $password_size{$password_format} )
         if $has_password;
 
     #Concatenate encoded Session Information padded with zeros at left
-    $datainput .= _hex_to_bin( _str_to_hex( $self->session_information ),
+    $datainput .= _hex_to_bytes( _str_to_hex( $self->session_information ),
         $session_size )
         if $has_session;
 
@@ -230,7 +230,7 @@ sub ocra {
         }
 
         #Concatenate encoded timestamp padded with 8 zeros at left
-        $datainput .= _hex_to_bin( _dec_to_hex($timestamp), 8 );
+        $datainput .= _hex_to_bytes( _dec_to_hex($timestamp), 8 );
     }
 
     #Encode the Key
@@ -293,7 +293,7 @@ sub _check_hex {
 }
 
 #private method, encodes hexadecimal to binary, pads with zeros at left
-sub _hex_to_bin {
+sub _hex_to_bytes {
     my ( $hex, $pad ) = @_;
     $hex = _check_hex($hex);
     my $length = length($hex);
@@ -324,7 +324,12 @@ You can also look for information at:
 
 =over 4
 
+=item * OATH: Initiative for Open Authentication
+
+L<http://www.openauthentication.org>
+
 =item * OCRA: OATH Challenge-Response Algorithm RFC
+
 L<http://tools.ietf.org/html/rfc6287>
 
 =item * RT: CPAN's request tracker
@@ -344,10 +349,6 @@ L<http://cpanratings.perl.org/d/Authen-OATH-OCRA>
 L<http://search.cpan.org/dist/Authen-OATH-OCRA/>
 
 =back
-
-
-=head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 
